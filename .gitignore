@@ -1,0 +1,16 @@
+_reference/
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+dist/
+.turbo/
+.cache/
+coverage/
+*.tgz
+.agents/
+.claude/
+skills-lock.json
+shopify-admin-skills/
+test-clone/

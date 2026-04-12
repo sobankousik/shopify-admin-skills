@@ -1,0 +1,35 @@
+{
+  "name": "shopify-admin-skills",
+  "owner": {
+    "name": "40rty"
+  },
+  "metadata": {
+    "description": "AI agent skills to operate your Shopify store with extended capabilities.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "shopify-admin-skills",
+      "source": "./",
+      "description": "AI agent skills to operate your Shopify store via native Admin GraphQL. 63 workflows across marketing, inventory, fulfillment, finance, and support.",
+      "version": "1.0.0",
+      "author": {
+        "name": "40rty"
+      },
+      "homepage": "https://skills.40rty.ai",
+      "category": "ecommerce",
+      "tags": [
+        "shopify",
+        "ecommerce",
+        "graphql",
+        "admin-api",
+        "operator",
+        "inventory",
+        "orders",
+        "refunds",
+        "marketing",
+        "fulfillment"
+      ]
+    }
+  ]
+}
