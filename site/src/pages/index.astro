@@ -88,24 +88,36 @@ const col2Base = shuffled.slice(half);
 const row1 = [...col1Base, ...col1Base, ...col1Base];
 const row2 = [...col2Base, ...col2Base, ...col2Base];
 
-const installPrompt = `Please set up Shopify Admin Skills for me.
+const installPrompt = `Please guide me through setting up Shopify Admin Skills. Act as a concierge: walk me through each step one at a time, keep your messages short and friendly, and DO NOT paste raw command output, logs, or stack traces into the chat. Summarize results in one line ("✅ plugins installed", "✅ connected to my-store"). Only surface details if something actually fails, and then only the relevant error.
 
-Step 1 — Install the Shopify AI Toolkit and the Shopify Admin Skills plugin by running these bash commands:
+Follow these steps in order, confirming each before moving on:
 
-claude plugin marketplace add Shopify/Shopify-AI-Toolkit
-claude plugin install shopify-plugin@shopify-ai-toolkit
-claude plugin marketplace add 40RTY-ai/shopify-admin-skills
-claude plugin install shopify-admin-skills@shopify-admin-skills
+Step 1 — Tell me you're about to install two plugins (Shopify AI Toolkit + Shopify Admin Skills), then run these silently and report a single ✅ when done:
+  claude plugin marketplace add Shopify/Shopify-AI-Toolkit
+  claude plugin install shopify-plugin@shopify-ai-toolkit
+  claude plugin marketplace add 40RTY-ai/shopify-admin-skills
+  claude plugin install shopify-admin-skills@shopify-admin-skills
 
-Step 2 — Confirm both plugins installed by running: claude plugin list
+Step 2 — Silently verify with "claude plugin list" that both plugins are present. Don't show me the list; just confirm "✅ both plugins active".
 
-Step 3 — Before authenticating to my store, please ask me for:
-  1. My store domain (e.g., my-store.myshopify.com)
-  2. The API scopes I need (default: read_products,write_products,read_orders,write_orders,read_customers,write_customers,read_inventory,write_inventory,read_discounts,write_discounts,read_fulfillments,write_fulfillments,read_returns,write_returns,read_price_rules,write_price_rules,read_publications,write_publications,read_shopify_payments_payouts)
+Step 3 — Ask me (one question at a time, conversationally):
+  a) What's your store domain? (e.g. my-store.myshopify.com)
+  b) Want to use the default scope set, or customize? Default covers products, orders, customers, inventory, discounts, fulfillments, returns, price rules, publications, and payouts (read+write).
 
-Once I provide them, run:
+Then run auth silently:
+  shopify store auth --store <domain> --scopes <scopes>
+and confirm with a one-line "✅ connected to <domain>".
 
-shopify store auth --store <my-store>.myshopify.com --scopes <comma-separated-scopes>`;
+Step 4 — Now guide me into actually using the skills. Present a short menu (3–5 options) of guided examples tailored to what the skills can do, like:
+  • "Find variants with low inventory and export a restock list"
+  • "Show abandoned checkouts from the last 7 days"
+  • "Audit products missing SEO titles or descriptions"
+  • "Rank my top products by revenue this month"
+  • "Find duplicate customer records"
+
+For each, give a one-sentence description. Ask me to pick one (or describe my own goal), then run the matching skill — again, quietly, reporting results as a clean summary, not raw JSON.
+
+Throughout: you're my guide. Ask, confirm, execute, summarize. No walls of text, no logs, no "here's what I ran" unless I ask.`;
 ---
 
 <Base title="Shopify Admin Skills — AI agent skills for your store">
@@ -282,14 +294,26 @@ shopify store auth --store <my-store>.myshopify.com --scopes <comma-separated-sc
     const rotEl = document.getElementById('rotating-text');
     const rotLink = document.getElementById('rotating-link') as HTMLAnchorElement | null;
     let currentIdx = 0;
+    let typeInterval: number | null = null;
+    let eraseTimeout: number | null = null;
+    let rotateInterval: number | null = null;
+
+    function clearTimers() {
+      if (typeInterval !== null) { clearInterval(typeInterval); typeInterval = null; }
+      if (eraseTimeout !== null) { clearTimeout(eraseTimeout); eraseTimeout = null; }
+    }
 
     function typeText(text: string, el: HTMLElement) {
+      if (typeInterval !== null) clearInterval(typeInterval);
       el.textContent = '';
       let i = 0;
-      const interval = setInterval(() => {
-        el.textContent += text[i];
+      typeInterval = window.setInterval(() => {
+        el.textContent = text.slice(0, i + 1);
         i++;
-        if (i >= text.length) clearInterval(interval);
+        if (i >= text.length && typeInterval !== null) {
+          clearInterval(typeInterval);
+          typeInterval = null;
+        }
       }, 35);
     }
 
@@ -298,9 +322,10 @@ shopify store auth --store <my-store>.myshopify.com --scopes <comma-separated-sc
     }
 
     function eraseAndType() {
-      if (!rotEl) return;
+      if (!rotEl || document.hidden) return;
+      clearTimers();
       rotEl.style.opacity = '0';
-      setTimeout(() => {
+      eraseTimeout = window.setTimeout(() => {
         currentIdx = (currentIdx + 1) % abilities.length;
         rotEl.style.opacity = '1';
         updateLink(currentIdx);
@@ -308,13 +333,27 @@ shopify store auth --store <my-store>.myshopify.com --scopes <comma-separated-sc
       }, 300);
     }
 
-    // Initial type
+    function startRotation() {
+      if (rotateInterval !== null) clearInterval(rotateInterval);
+      rotateInterval = window.setInterval(eraseAndType, 3500);
+    }
+
     if (rotEl) {
       updateLink(0);
       typeText(abilities[0][0], rotEl);
+      startRotation();
     }
 
-    setInterval(eraseAndType, 3500);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        clearTimers();
+        if (rotateInterval !== null) { clearInterval(rotateInterval); rotateInterval = null; }
+      } else if (rotEl) {
+        rotEl.style.opacity = '1';
+        typeText(abilities[currentIdx][0], rotEl);
+        startRotation();
+      }
+    });
   </script>
 
 </Base>
