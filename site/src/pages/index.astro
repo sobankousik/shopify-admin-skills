@@ -102,9 +102,12 @@ Step 2 — Silently verify with "claude plugin list" that both plugins are prese
 
 Step 3 — Ask me (one question at a time, conversationally):
   a) What's your store domain? (e.g. my-store.myshopify.com)
-  b) Want to use the default scope set, or customize? Default covers products, orders, customers, inventory, discounts, fulfillments, returns, price rules, publications, and payouts (read+write).
+  b) Want to use the default scope set, or customize? Default covers products, orders, customers, inventory, discounts, fulfillments, returns, price rules, publications, and payouts.
 
-Then run auth silently:
+Then run auth silently. Use EXACTLY this scope string for the default (do not abbreviate or invent scopes — Shopify will reject unknown scopes like "read_payouts"):
+  read_products,write_products,read_orders,write_orders,read_customers,write_customers,read_inventory,write_inventory,read_discounts,write_discounts,read_fulfillments,write_fulfillments,read_returns,write_returns,read_price_rules,write_price_rules,read_publications,write_publications,read_shopify_payments_payouts
+
+Command:
   shopify store auth --store <domain> --scopes <scopes>
 and confirm with a one-line "✅ connected to <domain>".
 
