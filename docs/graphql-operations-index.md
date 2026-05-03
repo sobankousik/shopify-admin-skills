@@ -49,6 +49,9 @@ Cross-reference table mapping every Shopify Admin GraphQL operation used across 
 | refundCreate | mutation | 2025-01 | customer-support/refund-and-reorder |
 | returnCreate | mutation | 2025-01 | customer-support/return-initiation |
 | returns | query | 2025-01 | returns/return-reason-analysis, returns/exchange-vs-refund-ratio, returns/return-processing-sla |
+| scriptTags | query | 2025-01 | store-management/shopify-admin-thank-you-page-form-conflict-fix |
 | tagsAdd | mutation | 2025-01 | marketing/abandoned-cart-recovery, marketing/customer-win-back, marketing/loyalty-segment-export, merchandising/product-tag-bulk-update, customer-ops/customer-spend-tier-tagger, order-intelligence/high-risk-order-tagger |
 | tagsRemove | mutation | 2025-01 | merchandising/product-tag-bulk-update |
+| themeFilesUpsert | mutation | 2025-01 | store-management/shopify-admin-thank-you-page-form-conflict-fix |
+| themes | query | 2025-01 | store-management/shopify-admin-thank-you-page-form-conflict-fix |
 | urlRedirects | query | 2025-01 | store-management/url-redirect-audit |
